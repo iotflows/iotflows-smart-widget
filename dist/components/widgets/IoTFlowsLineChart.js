@@ -51,7 +51,7 @@ class IoTFlowsLineChart extends _react.default.Component {
   render() {
     const options = {
       chart: {
-        height: '100%'
+        height: this.props.height_to_width_ratio || null
       },
       title: {
         text: this.props.name

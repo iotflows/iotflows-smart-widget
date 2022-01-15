@@ -380,6 +380,7 @@ class SmartWidget extends _react.default.Component {
           return /*#__PURE__*/_react.default.createElement(_IoTFlowsLineChart.IoTFlowsLineChart, {
             key: this.props.asset_uuid + widget_flow.flow_uuid,
             name: widget_flow.flow_name,
+            height_to_width_ratio: this.props.height_to_width_ratio || null,
             widget_settings: widget_flow.widget_settings,
             data: this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]
           });
@@ -388,6 +389,7 @@ class SmartWidget extends _react.default.Component {
           return /*#__PURE__*/_react.default.createElement(_IoTFlowsLineChartSinglePoint.IoTFlowsLineChartSinglePoint, {
             key: this.props.asset_uuid + widget_flow.flow_uuid,
             name: widget_flow.flow_name,
+            height_to_width_ratio: this.props.height_to_width_ratio || null,
             widget_settings: widget_flow.widget_settings,
             historicalData: this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid],
             data: this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]
@@ -397,6 +399,7 @@ class SmartWidget extends _react.default.Component {
           return /*#__PURE__*/_react.default.createElement(_IoTFlowsGauge.IoTFlowsGauge, {
             key: this.props.asset_uuid + widget_flow.flow_uuid,
             name: widget_flow.flow_name,
+            height_to_width_ratio: this.props.height_to_width_ratio || null,
             widget_settings: widget_flow.widget_settings,
             historicalData: this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid],
             data: this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]
