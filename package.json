@@ -1,6 +1,6 @@
 {
   "name": "@iotflows/iotflows-smart-widget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "IoTFlows Smart Widget Node Module.",
   "main": "SmartWidget.js",
   "scripts": {
