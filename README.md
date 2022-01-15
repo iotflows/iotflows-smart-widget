@@ -2,7 +2,7 @@
 
 https://iotflows.com
 
-IoTFlows Smart Widget Node.js Package.
+IoTFlows Smart Widget React Component.
 
 With Smart Widget, you can create various real-time and historical widgets. Each Smart Widget requires a smart_widget_uuid and a asset_uuid. 
 
