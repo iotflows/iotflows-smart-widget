@@ -10,7 +10,7 @@ With Smart Widget, you can create various real-time and historical widgets. Each
 Use `npm` to install the iotflows.js module:
 
 ```
-npm install @iotflows/iotflows-smart-widget
+npm install @iotflows/iotflows-smart-widget --save
 ```
 
 ## Usage
