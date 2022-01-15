@@ -63,7 +63,8 @@ class IoTFlowsGauge extends _react.default.Component {
   render() {
     const options = {
       chart: {
-        type: 'solidgauge'
+        type: 'solidgauge',
+        height: '100%'
       },
       title: {
         text: this.props.name // verticalAlign: 'middle',

@@ -340,13 +340,15 @@ export default class SmartWidget extends React.Component {
               return <IoTFlowsLineChart 
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name} 
+                      height_to_width_ratio={this.props.height_to_width_ratio || null}
                       widget_settings={widget_flow.widget_settings}
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                
 
             case 'wdgt_line_chart_timeseries_single_point':
-              return <IoTFlowsLineChartSinglePoint 
+              return <IoTFlowsLineChartSinglePoint                       
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name} 
+                      height_to_width_ratio={this.props.height_to_width_ratio || null}
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>      
@@ -355,6 +357,7 @@ export default class SmartWidget extends React.Component {
               return <IoTFlowsGauge 
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name} 
+                      height_to_width_ratio={this.props.height_to_width_ratio || null}
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                                
