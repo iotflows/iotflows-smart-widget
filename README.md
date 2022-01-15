@@ -16,13 +16,27 @@ npm install @iotflows/iotflows-smart-widget --save
 ## Usage
 
 ```javascript
-const {SmartWidget} = require('@iotflows/iotflows-smart-widget')
-<SmartWidget
-    username='CLIENT_ID'
-    password='CLIENT_SECRET'
-    widget_uuid='wdg_xxxxxxxxxxxxxxxxxxxxxx'
-    asset_uuid='as_xxxxxxxxxxxxxxxxxxxxxxx'
-/> 
+import SmartWidget from '@iotflows/iotflows-smart-widget/dist/components/SmartWidget'
+
+function App() {
+  return (
+    <div className="App">
+      <Container>                  
+        <SmartWidget
+            username='CLIENT_ID'
+            password='CLIENT_SECRET'
+            widget_uuid='wdg_xxxxxxxxxxxxxxxxxxxxxx'
+            asset_uuid='as_xxxxxxxxxxxxxxxxxxxxxxx'
+        /> 
+      </Container>
+    </div>
+  );
+}
+
+export default App;
+
+
+
 ```
 
 Make sure to change `CLIENT_ID` and `CLIENT_SECRET` with the proper credentials obtained from IoTFlows console. 

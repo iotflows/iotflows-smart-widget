@@ -1,13 +1,12 @@
 import React from "react";
-import {IoTFlowsLineChart} from './WidgetTypes/IoTFlowsLineChart'
-import {IoTFlowsLineChartSinglePoint} from './WidgetTypes/IoTFlowsLineChartSinglePoint'
-import {IoTFlowsGauge} from './WidgetTypes/IoTFlowsGauge'
+import {IoTFlowsLineChart} from './widgets/IoTFlowsLineChart'
+import {IoTFlowsLineChartSinglePoint} from './widgets/IoTFlowsLineChartSinglePoint'
+import {IoTFlowsGauge} from './widgets/IoTFlowsGauge'
 import {loadIoTFlows} from '@iotflows/iotflows-js'
-
 
 var fetch = require('node-fetch');
 
-export class SmartWidget extends React.Component {
+export default class SmartWidget extends React.Component {
   constructor(props) {
     super(props);     
     this.state = {
@@ -359,10 +358,8 @@ export class SmartWidget extends React.Component {
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                                
-            // case 'datetime':
-            //   return <h3>{widget_flow.flow_name}: {this.state.flow_data[widget_flow.flow_uuid]}</h3>                
-            // default:
-            //   return <h3>{widget_flow.flow_name}: {this.state.flow_data[widget_flow.flow_uuid]}</h3>                
+            default:
+              return <h4>{widget_flow.flow_name}: {this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}</h4>                
           }            
         })}        
       </>
