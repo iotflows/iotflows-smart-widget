@@ -52,7 +52,8 @@ export class IoTFlowsGauge extends React.Component {
     
     const options = {
       chart: {
-          type: 'solidgauge'        
+          type: 'solidgauge',
+          height: '100%'
       },
 
       title: {

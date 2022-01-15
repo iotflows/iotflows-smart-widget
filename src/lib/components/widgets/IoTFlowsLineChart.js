@@ -48,7 +48,7 @@ export class IoTFlowsLineChart extends React.Component {
 
     const options = {
       chart: {
-        height: 256,          
+        height: '100%'        
       },
       title: {
         text: this.props.name
