@@ -1,7 +1,7 @@
 import React from "react";
-import {IoTFlowsLineChart} from './IoTFlowsLineChart'
-import {IoTFlowsLineChartSinglePoint} from './IoTFlowsLineChartSinglePoint'
-import {IoTFlowsGauge} from './IoTFlowsGauge'
+import {IoTFlowsLineChart} from './WidgetTypes/IoTFlowsLineChart'
+import {IoTFlowsLineChartSinglePoint} from './WidgetTypes/IoTFlowsLineChartSinglePoint'
+import {IoTFlowsGauge} from './WidgetTypes/IoTFlowsGauge'
 import {loadIoTFlows} from '@iotflows/iotflows-js'
 
 
