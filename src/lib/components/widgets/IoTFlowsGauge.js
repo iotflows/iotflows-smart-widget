@@ -72,8 +72,8 @@ export class IoTFlowsGauge extends React.Component {
       },
 
       pane: {
-          startAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value ? -90 : 0,
-          endAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value ? 90 : 360,
+          startAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? -90 : 0,
+          endAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? 90 : 360,
           background: [{ // Track for Move
               outerRadius: '110%',
               innerRadius: '90%',
@@ -98,11 +98,11 @@ export class IoTFlowsGauge extends React.Component {
               dataLabels: {
                   enabled: true,
                   borderWidth: 0,
-                  format: `<span style="font-size:4em; color: {point.color}; font-weight: bold">{point.y}${this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : ''}</span>`,
+                  format: `<span style="font-size:3em; color: {point.color}; font-weight: bold">{point.y}${this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : ''}</span>`,
               },
               linecap: 'round',
               stickyTracking: false,
-              rounded: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value ? false : true
+              rounded: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? false : true
           }
       },
 

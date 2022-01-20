@@ -2,8 +2,9 @@ import React from "react";
 import {IoTFlowsLineChart} from './widgets/IoTFlowsLineChart'
 import {IoTFlowsLineChartSinglePoint} from './widgets/IoTFlowsLineChartSinglePoint'
 import {IoTFlowsGauge} from './widgets/IoTFlowsGauge'
+import {IoTFlowsNumerical} from './widgets/IoTFlowsNumerical'
+import {IoTFlowsAssetInfo} from './widgets/IoTFlowsAssetInfo'
 import {loadIoTFlows} from '@iotflows/iotflows-js'
-
 var fetch = require('node-fetch');
 
 export default class SmartWidget extends React.Component {
@@ -12,22 +13,50 @@ export default class SmartWidget extends React.Component {
     this.state = {
       flow_data: {},
       historicalData: {},
-      widget_flows: []      
+      widget_flows: [],
+      asset_info: {},      
+      widget_template_uuid_of_widget_uuid: {}
     }
   }
 
   componentDidMount() {        
-    try{this.readRealTime()} catch(e){console.log(e)}   
+    try{this.readRealTime()} catch(e){console.log(e)}       
   }
 
   async readRealTime() {   
     var self = this
     // connect to the cloud
     self.iotflows = await loadIoTFlows(this.props.username, this.props.password);
-    // read widget_flows info
+    
+    // read widget asset info    
     try {
-        let res = await fetch(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}/widgets/${self.props.widget_uuid}/flows`, {headers: self.iotflows.authHeader})
-        let json = await res.json()        
+        var res = await fetch(`https://api.iotflows.com/v1/widgets/${self.props.widget_uuid}`, {headers: self.iotflows.authHeader})
+        var json = await res.json()        
+        if(json && json.data && json.data[0])            
+        {                    
+          // map widget_template_uuid <-> widget_uuid
+          let temp = self.state.widget_template_uuid_of_widget_uuid
+          temp[self.props.widget_uuid] = json.data[0].widget_template_uuid        
+          self.setState({widget_template_uuid_of_widget_uuid: temp})
+          
+          // read asset_info
+          if(json.data[0].widget_template_uuid === "wdgt_asset_info")
+          {
+            var res2 = await fetch(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}`, {headers: self.iotflows.authHeader})
+            var json2 = await res2.json()       
+            if(json2 && json2.data && json2.data[0])            
+            {          
+              self.setState({asset_info: json2.data[0]})
+            }
+          }        
+  
+        }          
+    } catch(e) {console.log(e)}
+
+    try {        
+        // read widget_flows info
+        var res = await fetch(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}/widgets/${self.props.widget_uuid}/flows`, {headers: self.iotflows.authHeader})
+        var json = await res.json()        
         if(json && json.data && json.data[0])            
         {          
           let widget_flows = json.data
@@ -50,7 +79,7 @@ export default class SmartWidget extends React.Component {
                   // update the flow_data of this flow_uuid in the states 
                   if(!(each_flow_lastest_data.topic) || each_flow_lastest_data.topic.endsWith(widget_flow.flow_mqtt_subtopic))
                   {     
-                                     
+                                    
                     // if an array of historical data is needed, fetch it here                    
                     if (widget_flow.flow_mqtt_payload_parsing_expression.data_type == 'timeseries_single_point')
                     {                      
@@ -62,19 +91,17 @@ export default class SmartWidget extends React.Component {
                         json3.data.map(datapoint=>{
                           result.push([(new Date(datapoint.received_at)).getTime(), parseFloat(self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression)) ])
                         })
-                        // console.log('result', result)
 
                         let historicalData = self.state.historicalData || {}
                         historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse()                      
                         self.setState({historicalData}) 
-
                       }
                     }
                     else
                     {
                       let result = self.parsePayloadToFlowObject(each_flow_lastest_data.data, widget_flow.flow_mqtt_payload_parsing_expression)
                       let flow_data = self.state.flow_data || {}
-                      flow_data[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result                      
+                      flow_data[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result                                            
                       self.setState({flow_data}) 
                     }                                  
                   }
@@ -82,7 +109,7 @@ export default class SmartWidget extends React.Component {
               })
             }
           }) 
-            
+          
           // Subscribe and parse all flows of each data stream
           widget_flows.map(async widget_flow => {           
             await self.iotflows.subscribe({
@@ -102,8 +129,9 @@ export default class SmartWidget extends React.Component {
               }                  
             })       
           })       
-        }                                
+        }                   
       } catch (e) {console.error("Error: can't read the widget_flows info.", e); return}             
+            
   }
 
   // helper function to parse the payload based on the expression object
@@ -228,8 +256,7 @@ export default class SmartWidget extends React.Component {
               {
                 for(var m = 0; m < Object.keys(data).length; m++)
                   timeseries.push([timestamps[m], data[m]])              
-              }
-              
+              }              
             }
             else
             {
@@ -332,6 +359,7 @@ export default class SmartWidget extends React.Component {
 
 
   render() {
+    
     return (
       <>          
         {this.state.widget_flows.map(widget_flow => {    
@@ -343,7 +371,7 @@ export default class SmartWidget extends React.Component {
                       height_to_width_ratio={this.props.height_to_width_ratio || null}
                       widget_settings={widget_flow.widget_settings}
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                
-
+              
             case 'wdgt_line_chart_timeseries_single_point':
               return <IoTFlowsLineChartSinglePoint                       
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
@@ -361,10 +389,24 @@ export default class SmartWidget extends React.Component {
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                                
+            case 'wdgt_numerical':
+              return <IoTFlowsNumerical
+                      key={this.props.asset_uuid+widget_flow.flow_uuid} 
+                      name={widget_flow.flow_name}                                                                   
+                      widget_settings={widget_flow.widget_settings}
+                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
             default:
               return <h4>{widget_flow.flow_name}: {this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}</h4>                
           }            
-        })}        
+        })}      
+
+        {          
+          ( this.state.asset_info && this.state.widget_template_uuid_of_widget_uuid[this.props.widget_uuid] == "wdgt_asset_info" &&
+            <IoTFlowsAssetInfo
+                key={this.props.asset_uuid + '-' + this.props.widget_uuid}  
+                asset_info={this.state.asset_info}/> )                                         
+        }
+        
       </>
     );
   }

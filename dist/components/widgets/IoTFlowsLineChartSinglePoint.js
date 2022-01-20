@@ -35,7 +35,7 @@ class IoTFlowsLineChartSinglePoint extends _react.default.Component {
       return {
         data: nextProps.data
       };
-    } else if (nextProps.historicalData !== prevState.historicalData) {
+    } else if (nextProps.historicalData !== prevState.historicalData && nextProps.historicalData) {
       return {
         historicalData: nextProps.historicalData
       };

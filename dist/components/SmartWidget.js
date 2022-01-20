@@ -35,6 +35,10 @@ var _IoTFlowsLineChartSinglePoint = require("./widgets/IoTFlowsLineChartSinglePo
 
 var _IoTFlowsGauge = require("./widgets/IoTFlowsGauge");
 
+var _IoTFlowsNumerical = require("./widgets/IoTFlowsNumerical");
+
+var _IoTFlowsAssetInfo = require("./widgets/IoTFlowsAssetInfo");
+
 var _iotflowsJs = require("@iotflows/iotflows-js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -47,7 +51,9 @@ class SmartWidget extends _react.default.Component {
     this.state = {
       flow_data: {},
       historicalData: {},
-      widget_flows: []
+      widget_flows: [],
+      asset_info: {},
+      widget_template_uuid_of_widget_uuid: {}
     };
   }
 
@@ -62,13 +68,45 @@ class SmartWidget extends _react.default.Component {
   async readRealTime() {
     var self = this; // connect to the cloud
 
-    self.iotflows = await (0, _iotflowsJs.loadIoTFlows)(this.props.username, this.props.password); // read widget_flows info
+    self.iotflows = await (0, _iotflowsJs.loadIoTFlows)(this.props.username, this.props.password); // read widget asset info    
 
     try {
-      let res = await fetch("https://api.iotflows.com/v1/assets/".concat(self.props.asset_uuid, "/widgets/").concat(self.props.widget_uuid, "/flows"), {
+      var res = await fetch("https://api.iotflows.com/v1/widgets/".concat(self.props.widget_uuid), {
         headers: self.iotflows.authHeader
       });
-      let json = await res.json();
+      var json = await res.json();
+
+      if (json && json.data && json.data[0]) {
+        // map widget_template_uuid <-> widget_uuid
+        let temp = self.state.widget_template_uuid_of_widget_uuid;
+        temp[self.props.widget_uuid] = json.data[0].widget_template_uuid;
+        self.setState({
+          widget_template_uuid_of_widget_uuid: temp
+        }); // read asset_info
+
+        if (json.data[0].widget_template_uuid === "wdgt_asset_info") {
+          var res2 = await fetch("https://api.iotflows.com/v1/assets/".concat(self.props.asset_uuid), {
+            headers: self.iotflows.authHeader
+          });
+          var json2 = await res2.json();
+
+          if (json2 && json2.data && json2.data[0]) {
+            self.setState({
+              asset_info: json2.data[0]
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+
+    try {
+      // read widget_flows info
+      var res = await fetch("https://api.iotflows.com/v1/assets/".concat(self.props.asset_uuid, "/widgets/").concat(self.props.widget_uuid, "/flows"), {
+        headers: self.iotflows.authHeader
+      });
+      var json = await res.json();
 
       if (json && json.data && json.data[0]) {
         let widget_flows = json.data;
@@ -103,8 +141,7 @@ class SmartWidget extends _react.default.Component {
                       let result = [];
                       json3.data.map(datapoint => {
                         result.push([new Date(datapoint.received_at).getTime(), parseFloat(self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression))]);
-                      }); // console.log('result', result)
-
+                      });
                       let historicalData = self.state.historicalData || {};
                       historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse();
                       self.setState({
@@ -405,9 +442,20 @@ class SmartWidget extends _react.default.Component {
             data: this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]
           });
 
+        case 'wdgt_numerical':
+          return /*#__PURE__*/_react.default.createElement(_IoTFlowsNumerical.IoTFlowsNumerical, {
+            key: this.props.asset_uuid + widget_flow.flow_uuid,
+            name: widget_flow.flow_name,
+            widget_settings: widget_flow.widget_settings,
+            data: this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]
+          });
+
         default:
           return /*#__PURE__*/_react.default.createElement("h4", null, widget_flow.flow_name, ": ", this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]);
       }
+    }), this.state.asset_info && this.state.widget_template_uuid_of_widget_uuid[this.props.widget_uuid] == "wdgt_asset_info" && /*#__PURE__*/_react.default.createElement(_IoTFlowsAssetInfo.IoTFlowsAssetInfo, {
+      key: this.props.asset_uuid + '-' + this.props.widget_uuid,
+      asset_info: this.state.asset_info
     }));
   }
 
