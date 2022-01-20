@@ -57,8 +57,8 @@ export class IoTFlowsGauge extends React.Component {
       },
 
       title: {
-          text: this.props.name,    
-          // verticalAlign: 'middle',
+          text: this.props.name, 
+          // verticalAlign: 'middle', 
           // floating: true      
       },
 
@@ -72,6 +72,7 @@ export class IoTFlowsGauge extends React.Component {
       },
 
       pane: {
+          center: ['50%', this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? '65%' : '50%'],
           startAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? -90 : 0,
           endAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? 90 : 360,
           background: [{ // Track for Move
@@ -98,7 +99,7 @@ export class IoTFlowsGauge extends React.Component {
               dataLabels: {
                   enabled: true,
                   borderWidth: 0,
-                  format: `<span style="font-size:3em; color: {point.color}; font-weight: bold">{point.y}${this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : ''}</span>`,
+                  format: `<span style="font-size:2.75em; color: {point.color}; font-weight: bold">{point.y}${this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : ''}</span>`,
               },
               linecap: 'round',
               stickyTracking: false,
@@ -143,4 +144,3 @@ export class IoTFlowsGauge extends React.Component {
     );
   }
 }
-

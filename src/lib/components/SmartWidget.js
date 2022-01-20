@@ -109,7 +109,7 @@ export default class SmartWidget extends React.Component {
               })
             }
           }) 
-          
+
           // Subscribe and parse all flows of each data stream
           widget_flows.map(async widget_flow => {           
             await self.iotflows.subscribe({
@@ -396,15 +396,19 @@ export default class SmartWidget extends React.Component {
                       widget_settings={widget_flow.widget_settings}
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
             default:
-              return <h4>{widget_flow.flow_name}: {this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}</h4>                
+              return <></>              
           }            
         })}      
 
         {          
           ( this.state.asset_info && this.state.widget_template_uuid_of_widget_uuid[this.props.widget_uuid] == "wdgt_asset_info" &&
-            <IoTFlowsAssetInfo
+            <><IoTFlowsAssetInfo
                 key={this.props.asset_uuid + '-' + this.props.widget_uuid}  
-                asset_info={this.state.asset_info}/> )                                         
+                asset_info={this.state.asset_info}/> 
+            <IoTFlowsMap            
+              />
+            </>
+          )                                         
         }
         
       </>
