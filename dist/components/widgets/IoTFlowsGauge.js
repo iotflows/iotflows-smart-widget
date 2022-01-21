@@ -67,7 +67,7 @@ class IoTFlowsGauge extends _react.default.Component {
         height: this.props.height_to_width_ratio || null
       },
       title: {
-        text: this.props.name // verticalAlign: 'middle',
+        text: this.props.name // verticalAlign: 'middle', 
         // floating: true      
 
       },
@@ -79,6 +79,7 @@ class IoTFlowsGauge extends _react.default.Component {
         enabled: false
       },
       pane: {
+        center: ['50%', this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? '65%' : '50%'],
         startAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? -90 : 0,
         endAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? 90 : 360,
         background: [{
@@ -101,7 +102,7 @@ class IoTFlowsGauge extends _react.default.Component {
           dataLabels: {
             enabled: true,
             borderWidth: 0,
-            format: "<span style=\"font-size:3em; color: {point.color}; font-weight: bold\">{point.y}".concat(this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : '', "</span>")
+            format: "<span style=\"font-size:2.75em; color: {point.color}; font-weight: bold\">{point.y}".concat(this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : '', "</span>")
           },
           linecap: 'round',
           stickyTracking: false,

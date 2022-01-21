@@ -451,12 +451,12 @@ class SmartWidget extends _react.default.Component {
           });
 
         default:
-          return /*#__PURE__*/_react.default.createElement("h4", null, widget_flow.flow_name, ": ", this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]);
+          return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null);
       }
-    }), this.state.asset_info && this.state.widget_template_uuid_of_widget_uuid[this.props.widget_uuid] == "wdgt_asset_info" && /*#__PURE__*/_react.default.createElement(_IoTFlowsAssetInfo.IoTFlowsAssetInfo, {
+    }), this.state.asset_info && this.state.widget_template_uuid_of_widget_uuid[this.props.widget_uuid] == "wdgt_asset_info" && /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(_IoTFlowsAssetInfo.IoTFlowsAssetInfo, {
       key: this.props.asset_uuid + '-' + this.props.widget_uuid,
       asset_info: this.state.asset_info
-    }));
+    }), /*#__PURE__*/_react.default.createElement(IoTFlowsMap, null)));
   }
 
 }
