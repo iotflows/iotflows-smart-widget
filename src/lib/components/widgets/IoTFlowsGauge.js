@@ -10,7 +10,7 @@ solidGauge(Highcharts);
 
 export class IoTFlowsGauge extends React.Component {
   constructor(props) {
-    super(props);        
+    super(props);            
     this.chartComponent = React.createRef();
     this.allowChartUpdate = false;
     this.chartAwaitingTimer = null
@@ -21,12 +21,10 @@ export class IoTFlowsGauge extends React.Component {
     }
   }
 
-  componentDidMount() {   
-    console.log(this.props.widget_settings) 
+  componentDidMount() {       
   }
 
   static getDerivedStateFromProps(nextProps, prevState){    
-    console.log('getDerivedStateFromProps')
     if(nextProps.data!==prevState.data){      
         return { data: nextProps.data};
     }
@@ -52,8 +50,7 @@ export class IoTFlowsGauge extends React.Component {
     
     const options = {
       chart: {
-          type: 'solidgauge',
-          height: this.props.height_to_width_ratio || null
+          type: 'solidgauge',                    
       },
 
       title: {
@@ -72,9 +69,9 @@ export class IoTFlowsGauge extends React.Component {
       },
 
       pane: {
-          center: ['50%', this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? '65%' : '50%'],
-          startAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? -90 : 0,
-          endAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? 90 : 360,
+          center: ['50%', (this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true") ? '65%' : '50%'],
+          startAngle: (this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true") ? -90 : 0,
+          endAngle: (this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true") ? 90 : 360,
           background: [{ // Track for Move
               outerRadius: '110%',
               innerRadius: '90%',
@@ -87,8 +84,8 @@ export class IoTFlowsGauge extends React.Component {
       },
 
       yAxis: {
-          min: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.min && this.props.widget_settings.options.min.value? this.props.widget_settings.options.min.value : 0,
-          max: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.max && this.props.widget_settings.options.max.value? this.props.widget_settings.options.max.value : 100,
+          min: (this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.min && this.props.widget_settings.options.min.value !== undefined) ? this.props.widget_settings.options.min.value : 0,
+          max: (this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.max && this.props.widget_settings.options.max.value !== undefined) ? this.props.widget_settings.options.max.value : 100,
           lineWidth: 0,
           tickColor: 'darkblue'          
       },
@@ -99,11 +96,11 @@ export class IoTFlowsGauge extends React.Component {
               dataLabels: {
                   enabled: true,
                   borderWidth: 0,
-                  format: `<span style="font-size:2.75em; color: {point.color}; font-weight: bold">{point.y}${this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : ''}</span>`,
+                  format: `<span style="font-size:2.75em; color: {point.color}; font-weight: bold">{point.y}${(this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value) ? this.props.widget_settings.options.unit.value : ''}</span>`,
               },
               linecap: 'round',
               stickyTracking: false,
-              rounded: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? false : true
+              rounded: (this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true") ? false : true
           }
       },
 
@@ -135,7 +132,8 @@ export class IoTFlowsGauge extends React.Component {
 
     ++this.childKey;    
     return (
-      <HighchartsReact
+      <HighchartsReact 
+        containerProps={{ style: { height: "100%" } }}
         ref={this.chartComponent}
         highcharts={Highcharts}          
         options={options}

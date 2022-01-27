@@ -68,7 +68,6 @@ export class IoTFlowsLineChartSinglePoint extends React.Component {
   render() {    
     const options = {
       chart: {
-        height: this.props.height_to_width_ratio || null
       },
       title: {
         text: this.props.name
@@ -116,7 +115,8 @@ export class IoTFlowsLineChartSinglePoint extends React.Component {
     ++this.childKey;    
     return (
       <HighchartsReact
-        constructorType={"stockChart"}   
+        constructorType={"stockChart"}
+        containerProps={{ style: { height: "100%" } }}   
         ref={this.chartComponent}
         highcharts={Highcharts}
         options={options}          

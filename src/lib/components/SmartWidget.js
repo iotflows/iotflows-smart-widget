@@ -4,6 +4,7 @@ import {IoTFlowsLineChartSinglePoint} from './widgets/IoTFlowsLineChartSinglePoi
 import {IoTFlowsGauge} from './widgets/IoTFlowsGauge'
 import {IoTFlowsNumerical} from './widgets/IoTFlowsNumerical'
 import {IoTFlowsAssetInfo} from './widgets/IoTFlowsAssetInfo'
+import {IoTFlowsMap} from './widgets/IoTFlowsMap'
 import {loadIoTFlows} from '@iotflows/iotflows-js'
 var fetch = require('node-fetch');
 
@@ -89,9 +90,24 @@ export default class SmartWidget extends React.Component {
                       {      
                         let result = []
                         json3.data.map(datapoint=>{
-                          result.push([(new Date(datapoint.received_at)).getTime(), parseFloat(self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression)) ])
+                          result.push([(new Date(datapoint.received_at)).getTime(), parseFloat(self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression.data)) ])
                         })
 
+                        let historicalData = self.state.historicalData || {}
+                        historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse()                      
+                        self.setState({historicalData}) 
+                      }
+                    }
+                    else if (widget_flow.flow_mqtt_payload_parsing_expression.data_type == 'timeseries_single_coordinate')
+                    {                      
+                      let res3 = await fetch(`https://api.iotflows.com/v1/data_streams/${each_data_stream_uuid}/historical_data?record_limit=50&containing_subtopic=${widget_flow.flow_mqtt_subtopic || ''}`, {headers: self.iotflows.authHeader})
+                      let json3 = await res3.json()
+                      if(json3 && json3.data && json3.data[0])            
+                      {                              
+                        let result = []
+                        json3.data.map(datapoint=>{
+                          result.push([(new Date(datapoint.received_at)).getTime(), self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression.data) ])
+                        })                                              
                         let historicalData = self.state.historicalData || {}
                         historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse()                      
                         self.setState({historicalData}) 
@@ -209,6 +225,13 @@ export default class SmartWidget extends React.Component {
             return [now, number]
             break;
 
+          case 'timeseries_single_coordinate':
+            var coordinate = self.parseWithExpressionCondition(jsonPayload, ex.data)             
+            // add timestamp
+            var now = (new Date()).getTime()
+            return [now, coordinate]
+            break;
+
           case 'timeseries_array':
             var timeseries = []
             // merge timestamps and data to form timeseries?
@@ -275,9 +298,12 @@ export default class SmartWidget extends React.Component {
   // helper function for parsing json payload based on expressions and conditions
   parseWithExpressionCondition(jsonPayload, ex_con) {    
     let result;    
+
+    try{jsonPayload = JSON.parse(jsonPayload)} catch(e){}
+    
     // sanity check
     if(jsonPayload && ex_con && ex_con.expression && ex_con.expression.startsWith('.'))
-    {
+    {      
       if(ex_con.condition && ex_con.expression.includes('[X]'))
       {
         let X = this.findIndexOfCondition(jsonPayload, ex_con.condition)
@@ -287,6 +313,7 @@ export default class SmartWidget extends React.Component {
           return      
       }        
       result = this.getEx(jsonPayload, ex_con.expression)
+      
       // convert to array if split_with character is given      
       if(ex_con.split_with && typeof(result)==='string')
       {        
@@ -368,7 +395,6 @@ export default class SmartWidget extends React.Component {
               return <IoTFlowsLineChart 
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name} 
-                      height_to_width_ratio={this.props.height_to_width_ratio || null}
                       widget_settings={widget_flow.widget_settings}
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                
               
@@ -376,7 +402,6 @@ export default class SmartWidget extends React.Component {
               return <IoTFlowsLineChartSinglePoint                       
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name} 
-                      height_to_width_ratio={this.props.height_to_width_ratio || null}
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>      
@@ -385,7 +410,6 @@ export default class SmartWidget extends React.Component {
               return <IoTFlowsGauge 
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name} 
-                      height_to_width_ratio={this.props.height_to_width_ratio || null}
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                                
@@ -394,6 +418,13 @@ export default class SmartWidget extends React.Component {
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name}                                                                   
                       widget_settings={widget_flow.widget_settings}
+                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
+            case 'wdgt_map':
+              return <IoTFlowsMap
+                      key={this.props.asset_uuid+widget_flow.widget_uuid+widget_flow.flow_uuid} 
+                      name={widget_flow.flow_name}                                                                   
+                      widget_settings={widget_flow.widget_settings}
+                      historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
             default:
               return <></>              
@@ -404,9 +435,7 @@ export default class SmartWidget extends React.Component {
           ( this.state.asset_info && this.state.widget_template_uuid_of_widget_uuid[this.props.widget_uuid] == "wdgt_asset_info" &&
             <><IoTFlowsAssetInfo
                 key={this.props.asset_uuid + '-' + this.props.widget_uuid}  
-                asset_info={this.state.asset_info}/> 
-            <IoTFlowsMap            
-              />
+                asset_info={this.state.asset_info}/>            
             </>
           )                                         
         }
