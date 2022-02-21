@@ -30,7 +30,7 @@ class IoTFlowsLineChart extends _react.default.Component {
   componentDidMount() {}
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.data !== prevState.data) {
+    if (nextProps.data !== undefined && nextProps.data !== prevState.data) {
       return {
         data: nextProps.data
       };
@@ -42,7 +42,7 @@ class IoTFlowsLineChart extends _react.default.Component {
 
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (this.state.data !== nextProps.data) {
+    if (nextProps.data !== undefined && this.state.data !== nextProps.data) {
       this.chartComponent.current.chart.series[0].setData(nextProps.data);
       return false;
     } else return true;
@@ -50,9 +50,7 @@ class IoTFlowsLineChart extends _react.default.Component {
 
   render() {
     const options = {
-      chart: {
-        height: this.props.height_to_width_ratio || null
-      },
+      chart: {},
       title: {
         text: this.props.name
       },
@@ -74,7 +72,7 @@ class IoTFlowsLineChart extends _react.default.Component {
       },
       series: [{
         color: '#3399ff',
-        data: [],
+        data: this.state.data,
         animation: {
           duration: 1000
         }
@@ -83,6 +81,11 @@ class IoTFlowsLineChart extends _react.default.Component {
     ++this.childKey;
     return /*#__PURE__*/_react.default.createElement(_highchartsReactOfficial.default, {
       constructorType: "stockChart",
+      containerProps: {
+        style: {
+          height: "100%"
+        }
+      },
       ref: this.chartComponent,
       highcharts: _highstock.default,
       options: options,

@@ -35,13 +35,9 @@ class IoTFlowsGauge extends _react.default.Component {
     };
   }
 
-  componentDidMount() {
-    console.log(this.props.widget_settings);
-  }
+  componentDidMount() {}
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    console.log('getDerivedStateFromProps');
-
     if (nextProps.data !== prevState.data) {
       return {
         data: nextProps.data
@@ -63,8 +59,7 @@ class IoTFlowsGauge extends _react.default.Component {
   render() {
     const options = {
       chart: {
-        type: 'solidgauge',
-        height: this.props.height_to_width_ratio || null
+        type: 'solidgauge'
       },
       title: {
         text: this.props.name // verticalAlign: 'middle', 
@@ -79,9 +74,9 @@ class IoTFlowsGauge extends _react.default.Component {
         enabled: false
       },
       pane: {
-        center: ['50%', this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? '65%' : '50%'],
-        startAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? -90 : 0,
-        endAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? 90 : 360,
+        center: ['50%', this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true" ? '65%' : '50%'],
+        startAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true" ? -90 : 0,
+        endAngle: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true" ? 90 : 360,
         background: [{
           // Track for Move
           outerRadius: '110%',
@@ -92,8 +87,8 @@ class IoTFlowsGauge extends _react.default.Component {
         }]
       },
       yAxis: {
-        min: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.min && this.props.widget_settings.options.min.value ? this.props.widget_settings.options.min.value : 0,
-        max: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.max && this.props.widget_settings.options.max.value ? this.props.widget_settings.options.max.value : 100,
+        min: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.min && this.props.widget_settings.options.min.value !== undefined ? this.props.widget_settings.options.min.value : 0,
+        max: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.max && this.props.widget_settings.options.max.value !== undefined ? this.props.widget_settings.options.max.value : 100,
         lineWidth: 0,
         tickColor: 'darkblue'
       },
@@ -106,7 +101,7 @@ class IoTFlowsGauge extends _react.default.Component {
           },
           linecap: 'round',
           stickyTracking: false,
-          rounded: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === true ? false : true
+          rounded: this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.is_arc && this.props.widget_settings.options.is_arc.value === "true" ? false : true
         }
       },
       plotBands: [{
@@ -136,6 +131,11 @@ class IoTFlowsGauge extends _react.default.Component {
     };
     ++this.childKey;
     return /*#__PURE__*/_react.default.createElement(_highchartsReactOfficial.default, {
+      containerProps: {
+        style: {
+          height: "100%"
+        }
+      },
       ref: this.chartComponent,
       highcharts: _highcharts.default,
       options: options,

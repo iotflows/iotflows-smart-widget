@@ -36,7 +36,7 @@ export class IoTFlowsLineChartSinglePoint extends React.Component {
   // PREVENT RE-RENDER of highcharts!
   shouldComponentUpdate(nextProps, nextState) {
     if(this.state.data !== nextState.data) 
-    {
+    {      
       this.updateData(nextProps.data)
       return false;
     }    
@@ -98,7 +98,7 @@ export class IoTFlowsLineChartSinglePoint extends React.Component {
                 y1: 0,
                 x2: 0,
                 y2: 1
-            },
+            },            
             stops: [
                 [0, Highcharts.getOptions().colors[0]],
                 [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')] 
