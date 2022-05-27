@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.IoTFlowsLineChart = void 0;
+exports.IoTFlowsLineChartSinglePoint = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -15,7 +15,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // import darkUnica from "highcharts/themes/dark-unica";
 // darkUnica(Highcharts);
-class IoTFlowsLineChart extends _react.default.Component {
+class IoTFlowsLineChartSinglePoint extends _react.default.Component {
   constructor(props) {
     super(props);
     this.chartComponent = /*#__PURE__*/_react.default.createRef();
@@ -23,7 +23,8 @@ class IoTFlowsLineChart extends _react.default.Component {
     this.chartAwaitingCounter = 0;
     this.childKey = 0;
     this.state = {
-      data: []
+      data: [],
+      historicalData: []
     };
   }
 
@@ -34,18 +35,38 @@ class IoTFlowsLineChart extends _react.default.Component {
       return {
         data: nextProps.data
       };
+    } else if (nextProps.historicalData !== prevState.historicalData && nextProps.historicalData) {
+      return {
+        historicalData: nextProps.historicalData
+      };
     } else return null;
-  } // no need anymore because of shouldComponentUpdate
-  // componentDidUpdate(prevProps, prevState) {                
+  } // componentDidUpdate(prevProps, prevState) {                
   // }
   // PREVENT RE-RENDER of highcharts!
 
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (this.state.data !== nextProps.data) {
-      this.chartComponent.current.chart.series[0].setData(nextProps.data);
+    if (this.state.data !== nextState.data) {
+      this.updateData(nextProps.data);
+      return false;
+    } else if (this.state.historicalData !== this.props.historicalData) {
+      this.updateHistoricalData(nextProps.historicalData);
       return false;
     } else return true;
+  }
+
+  updateData(newData) {
+    let l = this.chartComponent.current.chart.series[0].data.length;
+
+    if (l < 50) {
+      this.chartComponent.current.chart.series[0].addPoint(newData, true, false, true);
+    } else {
+      this.chartComponent.current.chart.series[0].addPoint(newData, true, true, true);
+    }
+  }
+
+  updateHistoricalData(data) {
+    this.chartComponent.current.chart.series[0].setData(data); // this.setState({options: { ...this.state.options, series:[{...this.state.options.series[0], data}]}})      
   }
 
   render() {
@@ -71,11 +92,22 @@ class IoTFlowsLineChart extends _react.default.Component {
         enabled: false
       },
       series: [{
-        color: '#3399ff',
-        data: [],
-        animation: {
-          duration: 1000
-        }
+        type: "areaspline",
+        // color: "#aedcfc",
+        fillColor: {
+          linearGradient: {
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 1
+          },
+          stops: [[0, _highstock.default.getOptions().colors[0]], [1, _highstock.default.color(_highstock.default.getOptions().colors[0]).setOpacity(0).get('rgba')]]
+        },
+        marker: {
+          enabled: true,
+          radius: 4
+        },
+        data: []
       }]
     };
     ++this.childKey;
@@ -95,4 +127,4 @@ class IoTFlowsLineChart extends _react.default.Component {
 
 }
 
-exports.IoTFlowsLineChart = IoTFlowsLineChart;
+exports.IoTFlowsLineChartSinglePoint = IoTFlowsLineChartSinglePoint;

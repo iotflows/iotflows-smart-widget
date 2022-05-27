@@ -50,10 +50,12 @@ class IoTFlowsGauge extends _react.default.Component {
 
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (this.state.data !== nextState.data) {
-      this.chartComponent.current.chart.series[0].points[0].update(nextProps.data);
-      return false;
-    } else return true;
+    // if(this.state.data !== nextState.data) 
+    // {            
+    this.chartComponent.current.chart.series[0].points[0].update(nextProps.data);
+    return false; // }      
+    // else
+    //   return true
   }
 
   render() {
