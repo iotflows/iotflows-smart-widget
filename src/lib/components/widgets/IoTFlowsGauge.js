@@ -25,7 +25,7 @@ export class IoTFlowsGauge extends React.Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState){    
-    if(nextProps.data!==prevState.data){      
+    if(nextProps.data!==prevState.data){    
         return { data: nextProps.data};
     }
     else return null;
@@ -37,13 +37,13 @@ export class IoTFlowsGauge extends React.Component {
 
   // PREVENT RE-RENDER of highcharts!
   shouldComponentUpdate(nextProps, nextState) {        
-    if(this.state.data !== nextState.data) 
-    {      
+    // if(this.state.data !== nextState.data) 
+    // {            
       this.chartComponent.current.chart.series[0].points[0].update(nextProps.data);            
       return false;
-    }      
-    else
-      return true
+    // }      
+    // else
+    //   return true
   }
 
   render() {

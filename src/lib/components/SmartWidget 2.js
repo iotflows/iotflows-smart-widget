@@ -46,9 +46,7 @@ export default class SmartWidget extends React.Component {
           
           // read asset_info
           if(json.data[0].widget_template_uuid === "wdgt_asset_info")
-          {
-            // var res2 = await fetch(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}`, {headers: self.iotflows.authHeader})
-            // var json2 = await res2.json()       
+          {            
             var json2 = await this.fetchCachedURL(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}`)                                            
             if(json2 && json2.data && json2.data[0])            
             {          
@@ -59,81 +57,43 @@ export default class SmartWidget extends React.Component {
         }          
     } catch(e) {console.log(e)}
 
-    try {        
-        // read widget_flows info
-        // var res = await fetch(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}/widgets/${self.props.widget_uuid}/flows`, {headers: self.iotflows.authHeader})
-        // var json = await res.json()        
-        var json = await this.fetchCachedURL(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}/widgets/${self.props.widget_uuid}/flows`)                                            
+    try {  
+        // read flows_data info
+        var json = await this.fetchCachedURL(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}/widgets/${self.props.widget_uuid}/flows_data`)                                            
         if(json && json.data && json.data[0])            
         {          
           let widget_flows = json.data
           self.setState({widget_flows: widget_flows})
-        
-          // find distinct data streams of this widget
-          let distinct_data_stream_uuids = []
-          widget_flows.map(async widget_flow => {
-            if(!distinct_data_stream_uuids.includes(widget_flow.data_stream_uuid)) distinct_data_stream_uuids.push(widget_flow.data_stream_uuid)
-          })
-
-          // fetch historical data and parse all flows of each data stream
-          distinct_data_stream_uuids.map(async each_data_stream_uuid => {            
-            // let res2 = await fetch(`https://api.iotflows.com/v1/data_streams/${each_data_stream_uuid}/latest_subtopic_data`, {headers: self.iotflows.authHeader})
-            // let json2 = await res2.json()
-            var json2 = await this.fetchCachedURL(`https://api.iotflows.com/v1/data_streams/${each_data_stream_uuid}/latest_subtopic_data`)                                            
-            if(json2 && json2.data && json2.data[0])            
-            {          
-              json2.data.map(async each_flow_lastest_data => {
-                widget_flows.map(async widget_flow => { 
-                  // update the flow_data of this flow_uuid in the states 
-                  if(!(each_flow_lastest_data.topic) || each_flow_lastest_data.topic.endsWith(widget_flow.flow_mqtt_subtopic))
-                  {     
-                                    
-                    // if an array of historical data is needed, fetch it here                    
-                    if (widget_flow.flow_mqtt_payload_parsing_expression.data_type == 'timeseries_single_point')
-                    {                      
-                      // let res3 = await fetch(`https://api.iotflows.com/v1/data_streams/${each_data_stream_uuid}/historical_data?record_limit=50&containing_subtopic=${widget_flow.flow_mqtt_subtopic || ''}`, {headers: self.iotflows.authHeader})
-                      // let json3 = await res3.json()
-                      var json3 = await this.fetchCachedURL(`https://api.iotflows.com/v1/data_streams/${each_data_stream_uuid}/historical_data?record_limit=50&containing_subtopic=${widget_flow.flow_mqtt_subtopic || ''}`)
-                      if(json3 && json3.data && json3.data[0])            
-                      {      
-                        let result = []
-                        json3.data.map(datapoint=>{
-                          result.push([(new Date(datapoint.received_at)).getTime(), parseFloat(self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression.data)) ])
-                        })
-
-                        let historicalData = self.state.historicalData || {}
-                        historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse()                      
-                        self.setState({historicalData}) 
-                      }
-                    }
-                    else if (widget_flow.flow_mqtt_payload_parsing_expression.data_type == 'timeseries_single_coordinate')
-                    {                      
-                      // let res3 = await fetch(`https://api.iotflows.com/v1/data_streams/${each_data_stream_uuid}/historical_data?record_limit=50&containing_subtopic=${widget_flow.flow_mqtt_subtopic || ''}`, {headers: self.iotflows.authHeader})
-                      // let json3 = await res3.json()
-                      var json3 = await this.fetchCachedURL(`https://api.iotflows.com/v1/data_streams/${each_data_stream_uuid}/historical_data?record_limit=50&containing_subtopic=${widget_flow.flow_mqtt_subtopic || ''}`)
-                      if(json3 && json3.data && json3.data[0])            
-                      {                              
-                        let result = []
-                        json3.data.map(datapoint=>{
-                          result.push([(new Date(datapoint.received_at)).getTime(), self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression.data) ])
-                        })                                              
-                        let historicalData = self.state.historicalData || {}
-                        historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse()                      
-                        self.setState({historicalData}) 
-                      }
-                    }
-                    else
-                    {
-                      let result = self.parsePayloadToFlowObject(each_flow_lastest_data.data, widget_flow.flow_mqtt_payload_parsing_expression)
-                      let flow_data = self.state.flow_data || {}
-                      flow_data[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result                                            
-                      self.setState({flow_data}) 
-                    }                                  
-                  }
-                })                          
-              })
+          widget_flows.map(async widget_flow => {                                                                            
+            if (widget_flow.flow_mqtt_payload_parsing_expression.data_type == 'timeseries_single_point')
+            {                                    
+              let result = []
+              widget_flow.data.map(datapoint=>{
+                result.push([(new Date(datapoint.received_at)).getTime(), parseFloat(self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression.data)) ])
+              })              
+              let historicalData = self.state.historicalData || {}
+              historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse()                      
+              self.setState({historicalData})                    
             }
-          }) 
+            else if (widget_flow.flow_mqtt_payload_parsing_expression.data_type == 'timeseries_single_coordinate')
+            {                      
+              let result = []
+              widget_flow.data.map(datapoint=>{
+                result.push([(new Date(datapoint.received_at)).getTime(), self.parseWithExpressionCondition(datapoint.data, widget_flow.flow_mqtt_payload_parsing_expression.data) ])
+              })                                              
+              let historicalData = self.state.historicalData || {}
+              historicalData[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result.reverse()                      
+              self.setState({historicalData}) 
+            }
+            else
+            {              
+              let result = self.parsePayloadToFlowObject(widget_flow.data[0].data, widget_flow.flow_mqtt_payload_parsing_expression)
+              let flow_data = self.state.flow_data || {}
+              flow_data[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result                                            
+              self.setState({flow_data})             
+            }                                            
+          })                          
+        
 
           // Subscribe and parse all flows of each data stream
           widget_flows.map(async widget_flow => {           
@@ -148,18 +108,17 @@ export default class SmartWidget extends React.Component {
                   if(result) {
                     let flow_data = self.state.flow_data || {}
                     flow_data[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result                    
-                    self.setState({flow_data})                    
+                    self.setState({flow_data})                              
                   }                  
                 }                  
               }                  
             })       
           })       
-        }                   
-      } catch (e) {console.error("Error: can't read the widget_flows info.", e); return}             
-            
+        }             
+      } catch (e) {console.error("Error: can't read the widget_flows info.", e); return}                       
   }
 
-  // helper function to parse the payload based on the expression object
+
   parsePayloadToFlowObject(payload, ex)
   {    
     var self = this
@@ -256,21 +215,21 @@ export default class SmartWidget extends React.Component {
 
               if(ex.datetime.type = 'starting_datetime_sampling_interval')
               {
-                let starting_datetime = 1.0 //Date.now()
+                let starting_datetime = Date.now()
                 let sampling_interval = 1.0
-                let starting_datetime_ratio = 1.0
-                try { 
-                  starting_datetime_ratio = ex.datetime.starting_datetime_ratio || 1.0
-                } catch(e) {console.log(e, "Can't find starting_datetime_ratio")}      
+                let starting_datetime_ratio = 1.0                
+                // try { 
+                //   starting_datetime_ratio = parseFloat(ex.datetime.starting_datetime_ratio) || 1.0                  
+                // } catch(e) {console.log(e, "Can't find starting_datetime_ratio")}      
 
                 try { 
-                  starting_datetime = 1.0 //Date(self.parseWithExpressionCondition(jsonPayload, ex.datetime.starting_datetime)) || Date.now()
+                  starting_datetime = Date.parse(self.parseWithExpressionCondition(jsonPayload, ex.datetime.starting_datetime)) || Date.now()
                 } catch(e) {console.log(e, "Can't parse starting_datetime")}    
 
                 try { 
                   sampling_interval = parseFloat(sampling_interval = self.parseWithExpressionCondition(jsonPayload, ex.datetime.sampling_interval)) || 1.0 
                 } catch(e) {console.log(e, "Can't parse sampling_interval")}                                                                            
-
+                
                 // construct timeseries                  
                 for(var n = 0; n < Object.keys(data).length; n++)
                 {
@@ -293,7 +252,8 @@ export default class SmartWidget extends React.Component {
             else
             {
               // TODO: if data requires no merging and already is in pair
-            }            
+            }   
+            
             return timeseries;            
         }         
       }                                      
@@ -344,8 +304,9 @@ export default class SmartWidget extends React.Component {
   findIndexOfCondition(jsonPayload, conditionJson) {
     let index = -1;
     if(conditionJson && conditionJson.expression && conditionJson.expression.includes('.') && conditionJson.value)
-    {
+    {      
       let ex = conditionJson.expression
+      
       let exUntilVariable = ex.split('[X')[0]
       let exAfterVariable = ex.split('X]')[1]      
       let arrayUntilVariable = this.getEx(jsonPayload, exUntilVariable)
@@ -383,11 +344,17 @@ export default class SmartWidget extends React.Component {
       {
         let variable = segment.split('[')[0]
         let index = parseInt(segment.split('[')[1].split(']')[0])
-        result = result[variable][index]
+
+        if(result !== undefined && result[variable] != undefined && result[variable][index] !== undefined)        
+          result = result[variable][index]
       }
       else
       {
-        result = result[segment]
+        if(result !== undefined )
+        {
+          result = result[segment]
+        }
+        
       }      
     })
     return result
@@ -405,22 +372,17 @@ export default class SmartWidget extends React.Component {
     else
     {      
       if(!cache) cache = {}
-      var res = await fetch(url, {headers: this.iotflows.authHeader})
-      json = await res.json()     
-      if(json && json.data && json.data[0])
+      try
       {
-        // add the new result to cache for this url
-        console.log('url')
-        console.log(url)
-        console.log('cache before')
-        console.log(cache)
-        console.log('jsonnnnnnnnnnnnnn')
-        console.log(json)
-        cache[url] = json
-        console.log('cache after')
-        console.log(cache)
-        localStorage.setItem('cache', JSON.stringify(cache))  
-      }      
+        var res = await fetch(url, {headers: this.iotflows.authHeader})
+        json = await res.json()     
+        if(json && json.data && json.data[0])
+        {
+          // add the new result to cache for this url        
+          localStorage.setItem('cache', JSON.stringify(cache))  
+        }      
+      }
+      catch(e) {console.log(e)}      
     }
     return json
   }
@@ -429,10 +391,9 @@ export default class SmartWidget extends React.Component {
     
     return (
       <>          
-        {this.state.widget_flows.map(widget_flow => {  
-          console.log('widget_flow.widget_template_uuid')
-          console.log(widget_flow.widget_template_uuid)  
+        {this.state.widget_flows.map(widget_flow => {                      
           switch(widget_flow.widget_template_uuid) {
+            
             case 'wdgt_line_chart_timeseries_array':
               return <IoTFlowsLineChart 
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 

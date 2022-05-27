@@ -36,7 +36,7 @@ export class IoTFlowsLineChartSinglePoint extends React.Component {
   // PREVENT RE-RENDER of highcharts!
   shouldComponentUpdate(nextProps, nextState) {
     if(this.state.data !== nextState.data) 
-    {
+    {      
       this.updateData(nextProps.data)
       return false;
     }    
