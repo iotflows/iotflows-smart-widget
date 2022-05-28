@@ -20,7 +20,7 @@ export class IoTFlowsLineChart extends React.Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState){    
-    if(nextProps.data!==prevState.data){      
+    if(nextProps.data !== undefined && nextProps.data!==prevState.data){                                
         return { data: nextProps.data};
     }
     else return null;
@@ -33,9 +33,9 @@ export class IoTFlowsLineChart extends React.Component {
 
   // PREVENT RE-RENDER of highcharts!
   shouldComponentUpdate(nextProps, nextState) {
-    if(this.state.data !== nextProps.data) 
-    {            
-      this.chartComponent.current.chart.series[0].setData(nextProps.data)            
+    if(nextProps.data !== undefined && this.state.data !== nextProps.data) 
+    {                        
+      this.chartComponent.current.chart.series[0].setData(nextProps.data)
       return false;
     }
     else
@@ -71,7 +71,7 @@ export class IoTFlowsLineChart extends React.Component {
       series: [
         {
           color: '#3399ff',
-          data: [],
+          data: this.state.data,
           animation: {
             duration: 1000,
           }
