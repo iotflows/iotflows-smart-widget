@@ -51,6 +51,8 @@ var _IoTFlowsMultiColumn = require("./widgets/IoTFlowsMultiColumn");
 
 var _IoTFlowsPie = require("./widgets/IoTFlowsPie");
 
+var _IoTFlowsCommand = require("./widgets/IoTFlowsCommand");
+
 var _IoTFlowsHeatmap = require("./widgets/IoTFlowsHeatmap");
 
 var _iotflowsJs = require("@iotflows/iotflows-js");
@@ -175,17 +177,14 @@ class SmartWidget extends _react.default.Component {
     } catch (e) {
       console.error("Error: can't read the widget_flows info.", e);
       return;
-    } // hack for now: read sat_status_per_day
+    } // // hack for now: read sat_status_per_day
+    // var res = await fetch('https://api.iotflows.com/v1/data_streams/ds_2e420d6725134d078ead21608ca49898/sat_status_per_day?topic_containing=CONTROLLER1&starting_date=3/6/2022&ending_date=3/12/2022')
+    // var json = await res.json()     
+    // if(json && json.data)
+    // {
+    //   self.setState({sat_status_per_day: json.data})
+    // }
 
-
-    var res = await fetch('https://api.iotflows.com/v1/data_streams/ds_2e420d6725134d078ead21608ca49898/sat_status_per_day?topic_containing=CONTROLLER1&starting_date=3/6/2022&ending_date=3/12/2022');
-    var json = await res.json();
-
-    if (json && json.data) {
-      self.setState({
-        sat_status_per_day: json.data
-      });
-    }
   }
 
   parsePayloadToFlowObject(payload, ex) {
@@ -482,17 +481,22 @@ class SmartWidget extends _react.default.Component {
           });
 
         case 'wdgt_string':
-          return /*#__PURE__*/_react.default.createElement(_IoTFlowsHeatmap.IoTFlowsHeatmap, {
-            data: this.state.sat_status_per_day
+          return /*#__PURE__*/_react.default.createElement(_IoTFlowsString.IoTFlowsString, {
+            key: this.props.asset_uuid + widget_flow.flow_uuid,
+            name: widget_flow.flow_name,
+            widget_settings: widget_flow.widget_settings,
+            data: this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]
           });
-          {
-            /* <IoTFlowsString
-             key={this.props.asset_uuid+widget_flow.flow_uuid} 
-             name={widget_flow.flow_name}                                                                   
-             widget_settings={widget_flow.widget_settings}
-             data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
-            */
-          }
+        // <IoTFlowsHeatmap data={this.state.sat_status_per_day}/>
+
+        case 'wdgt_command':
+          return /*#__PURE__*/_react.default.createElement(_IoTFlowsCommand.IoTFlowsCommand, {
+            key: this.props.asset_uuid + widget_flow.flow_uuid + '_command',
+            name: widget_flow.flow_name,
+            widget_settings: widget_flow.widget_settings,
+            auth_header: this.iotflows.authHeader,
+            data: this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]
+          });
 
         case 'wdgt_map':
           return /*#__PURE__*/_react.default.createElement(_IoTFlowsMap.IoTFlowsMap, {

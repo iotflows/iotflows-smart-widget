@@ -9,6 +9,7 @@ import {IoTFlowsMap} from './widgets/IoTFlowsMap'
 import {IoTFlowsMultiLineChart} from './widgets/IoTFlowsMultiLineChart'
 import {IoTFlowsMultiColumn} from './widgets/IoTFlowsMultiColumn'
 import {IoTFlowsPie} from './widgets/IoTFlowsPie'
+import {IoTFlowsCommand} from './widgets/IoTFlowsCommand'
 import {IoTFlowsHeatmap} from './widgets/IoTFlowsHeatmap'
 import {loadIoTFlows} from '@iotflows/iotflows-js'
 var fetch = require('node-fetch');
@@ -94,7 +95,8 @@ export default class SmartWidget extends React.Component {
               flow_data[self.props.asset_uuid + '-' + widget_flow.flow_uuid] = result                                            
               self.setState({flow_data})             
             }                                            
-          })                          
+          })
+          
         
 
           // Subscribe and parse all flows of each data stream
@@ -119,13 +121,13 @@ export default class SmartWidget extends React.Component {
         }             
       } catch (e) {console.error("Error: can't read the widget_flows info.", e); return}                       
 
-      // hack for now: read sat_status_per_day
-      var res = await fetch('https://api.iotflows.com/v1/data_streams/ds_2e420d6725134d078ead21608ca49898/sat_status_per_day?topic_containing=CONTROLLER1&starting_date=3/6/2022&ending_date=3/12/2022')
-      var json = await res.json()     
-      if(json && json.data)
-      {
-        self.setState({sat_status_per_day: json.data})
-      }
+      // // hack for now: read sat_status_per_day
+      // var res = await fetch('https://api.iotflows.com/v1/data_streams/ds_2e420d6725134d078ead21608ca49898/sat_status_per_day?topic_containing=CONTROLLER1&starting_date=3/6/2022&ending_date=3/12/2022')
+      // var json = await res.json()     
+      // if(json && json.data)
+      // {
+      //   self.setState({sat_status_per_day: json.data})
+      // }
 
   }
 
@@ -426,42 +428,54 @@ export default class SmartWidget extends React.Component {
                       name={widget_flow.flow_name} 
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
-                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                                
+                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>     
+
             case 'wdgt_numerical':
               return <IoTFlowsNumerical
                       key={this.props.asset_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name}                                                                   
                       widget_settings={widget_flow.widget_settings}
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
+
             case 'wdgt_string':
-              return <IoTFlowsHeatmap
-                        data={this.state.sat_status_per_day}/>
-                      {/* <IoTFlowsString
-                        key={this.props.asset_uuid+widget_flow.flow_uuid} 
-                        name={widget_flow.flow_name}                                                                   
-                        widget_settings={widget_flow.widget_settings}
-                        data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
-                       */}
-                      
+              return <IoTFlowsString
+                      key={this.props.asset_uuid+widget_flow.flow_uuid} 
+                      name={widget_flow.flow_name}                                                                   
+                      widget_settings={widget_flow.widget_settings}
+                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                                           
+                      // <IoTFlowsHeatmap data={this.state.sat_status_per_day}/>
+            
+            case 'wdgt_command':
+              return <IoTFlowsCommand
+                      key={this.props.asset_uuid+widget_flow.flow_uuid+'_command'} 
+                      name={widget_flow.flow_name}                                                                   
+                      widget_settings={widget_flow.widget_settings}
+                      auth_header ={this.iotflows.authHeader}
+                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                                           
+                              
+            
             case 'wdgt_map':
               return <IoTFlowsMap
                       key={this.props.asset_uuid+widget_flow.widget_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name}                                                                   
                       widget_settings={widget_flow.widget_settings}
                       historicalData={this.state.historicalData[this.props.asset_uuid + '-' + widget_flow.flow_uuid]} 
-                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
+                      data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>        
+
             case 'wdgt_pie':
               return <IoTFlowsPie
                       key={this.props.asset_uuid+widget_flow.widget_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name}                                                                   
                       widget_settings={widget_flow.widget_settings}
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>  
+
             case 'wdgt_multi_column':
               return <IoTFlowsMultiColumn
                       key={this.props.asset_uuid+widget_flow.widget_uuid+widget_flow.flow_uuid} 
                       name={widget_flow.flow_name}                                                                   
                       widget_settings={widget_flow.widget_settings}
                       data={this.state.flow_data[this.props.asset_uuid + '-' + widget_flow.flow_uuid]}/>                    
+
             case 'wdgt_multi_line_chart':
               return <IoTFlowsMultiLineChart
                       key={this.props.asset_uuid+widget_flow.widget_uuid+widget_flow.flow_uuid} 
