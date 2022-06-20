@@ -62,7 +62,8 @@ export default class SmartWidget extends React.Component {
 
     try {  
         // read flows_data info
-        var json = await this.fetchCachedURL(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}/widgets/${self.props.widget_uuid}/flows_data`)                                            
+        var json = await this.fetchCachedURL(`https://api.iotflows.com/v1/assets/${self.props.asset_uuid}/widgets/${self.props.widget_uuid}/flows_data`)   
+                                         
         if(json && json.data && json.data[0])            
         {          
           let widget_flows = json.data
@@ -263,9 +264,10 @@ export default class SmartWidget extends React.Component {
               }              
             }
             else
-            {
+            {              
               // TODO: if data requires no merging and already is in pair
             }   
+            
             
             return timeseries;            
         }         
@@ -280,14 +282,13 @@ export default class SmartWidget extends React.Component {
   // helper function for parsing json payload based on expressions and conditions
   parseWithExpressionCondition(jsonPayload, ex_con) {    
     let result;    
-
     try{jsonPayload = JSON.parse(jsonPayload)} catch(e){}
     
     // sanity check
     if(jsonPayload && ex_con && ex_con.expression && ex_con.expression.startsWith('.'))
     {      
       if(ex_con.condition && ex_con.expression.includes('[X]'))
-      {
+      {        
         let X = this.findIndexOfCondition(jsonPayload, ex_con.condition)
         if(X != -1)
           ex_con.expression = ex_con.expression.replace('[X]',`[${X}]`)      
@@ -300,7 +301,33 @@ export default class SmartWidget extends React.Component {
       if(ex_con.split_with && typeof(result)==='string')
       {        
         result = result.split(ex_con.split_with)
+       
       }          
+
+      // if scale_factor given try to scale it
+      if(ex_con.scale_factor)
+      {        
+        if(typeof(result)==='number')
+        {
+          result = (result * parseFloat(ex_con.scale_factor)).toFixed(2)          
+        }
+        else if(typeof(result)==='object')
+        {
+          // if it's an array, scale it
+          try{ 
+            result = result.map(x => (x * parseFloat(ex_con.scale_factor)).toFixed(2) )
+          }
+          catch(e){}
+        }
+      }
+
+       
+         
+       
+
+
+
+      
     }
     else
     {
@@ -319,7 +346,6 @@ export default class SmartWidget extends React.Component {
     if(conditionJson && conditionJson.expression && conditionJson.expression.includes('.') && conditionJson.value)
     {      
       let ex = conditionJson.expression
-      
       let exUntilVariable = ex.split('[X')[0]
       let exAfterVariable = ex.split('X]')[1]      
       let arrayUntilVariable = this.getEx(jsonPayload, exUntilVariable)
@@ -352,24 +378,27 @@ export default class SmartWidget extends React.Component {
   {
     let result = jsonPayload;
     let splitEx = ex.split('.').slice(1)
-    splitEx.map(segment => {
+    splitEx.map(segment => {      
       if(segment.includes('['))
       {
         let variable = segment.split('[')[0]
         let index = parseInt(segment.split('[')[1].split(']')[0])
-
         if(result !== undefined && result[variable] != undefined && result[variable][index] !== undefined)        
           result = result[variable][index]
       }
       else
       {
-        if(result !== undefined )
-        {
-          result = result[segment]
-        }
         
-      }      
+        if(result !== undefined )
+        { 
+          result = result[segment]          
+        }       
+        
+      }        
+    
     })
+
+    console.log(result, 'result')
     return result
   }
 
@@ -501,3 +530,22 @@ export default class SmartWidget extends React.Component {
     );
   }
 }
+
+
+
+
+// {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].record[0].data","condition":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].key[0]","value":"VOLTAGE"}}}
+
+// {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".MeasurementData.GraphicalData[X].data","condition":{"expression":".MeasurementData.GraphicalData[X].key","value":"LIFT_POSITION"},"split_with":""},"datetime":{"type":"starting_datetime_sampling_interval","starting_datetime":{"expression":".MeasurementData.MeasurementParameter[X].value","condition":{"expression":".MeasurementData.MeasurementParameter[X].key","value":"DateTime"}},"starting_datetime_ratio":"1.0","sampling_interval":{"expression":".MeasurementData.GraphicalData[X].sampletime","condition":{"expression":".MeasurementData.GraphicalData[X].key","value":"LIFT_POSITION"}}}}
+
+
+
+
+
+
+// {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].record[0].data","condition":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].key[0]","value":"VOLTAGE"},"split_with":""},"datetime":{"type":"starting_datetime_sampling_interval","starting_datetime":{"expression":".ns0:processDataMessage.processDataElementData[0].datetime","condition":{"expression":"","value":""}},"starting_datetime_ratio":"1","sampling_interval":{"expression":"","condition":{"expression":"","value":""}}}}
+
+
+
+
+// {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].record[0].data","condition":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].key[0]","value":"VOLTAGE"},"split_with":"", "scale_factor": 0.001},"datetime":{"type":"starting_datetime_sampling_interval","starting_datetime":{"expression":".ns0:processDataMessage.processDataElementData[0].datetime","condition":{"expression":"","value":""}},"starting_datetime_ratio":"1","sampling_interval":{"expression":"","condition":{"expression":"","value":""}}}}

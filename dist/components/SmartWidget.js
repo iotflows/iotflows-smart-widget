@@ -358,6 +358,18 @@ class SmartWidget extends _react.default.Component {
 
       if (ex_con.split_with && typeof result === 'string') {
         result = result.split(ex_con.split_with);
+      } // if scale_factor given try to scale it
+
+
+      if (ex_con.scale_factor) {
+        if (typeof result === 'number') {
+          result = (result * parseFloat(ex_con.scale_factor)).toFixed(2);
+        } else if (typeof result === 'object') {
+          // if it's an array, scale it
+          try {
+            result = result.map(x => (x * parseFloat(ex_con.scale_factor)).toFixed(2));
+          } catch (e) {}
+        }
       }
     } else {
       return jsonPayload;
@@ -413,6 +425,7 @@ class SmartWidget extends _react.default.Component {
         }
       }
     });
+    console.log(result, 'result');
     return result;
   }
 
@@ -540,6 +553,10 @@ class SmartWidget extends _react.default.Component {
     })));
   }
 
-}
+} // {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].record[0].data","condition":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].key[0]","value":"VOLTAGE"}}}
+// {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".MeasurementData.GraphicalData[X].data","condition":{"expression":".MeasurementData.GraphicalData[X].key","value":"LIFT_POSITION"},"split_with":""},"datetime":{"type":"starting_datetime_sampling_interval","starting_datetime":{"expression":".MeasurementData.MeasurementParameter[X].value","condition":{"expression":".MeasurementData.MeasurementParameter[X].key","value":"DateTime"}},"starting_datetime_ratio":"1.0","sampling_interval":{"expression":".MeasurementData.GraphicalData[X].sampletime","condition":{"expression":".MeasurementData.GraphicalData[X].key","value":"LIFT_POSITION"}}}}
+// {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].record[0].data","condition":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].key[0]","value":"VOLTAGE"},"split_with":""},"datetime":{"type":"starting_datetime_sampling_interval","starting_datetime":{"expression":".ns0:processDataMessage.processDataElementData[0].datetime","condition":{"expression":"","value":""}},"starting_datetime_ratio":"1","sampling_interval":{"expression":"","condition":{"expression":"","value":""}}}}
+// {"version":"1.1","data_type":"timeseries_array","merge_require":true,"data":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].record[0].data","condition":{"expression":".ns0:processDataMessage.processDataElementData[0].GraphData[X].key[0]","value":"VOLTAGE"},"split_with":"", "scale_factor": 0.001},"datetime":{"type":"starting_datetime_sampling_interval","starting_datetime":{"expression":".ns0:processDataMessage.processDataElementData[0].datetime","condition":{"expression":"","value":""}},"starting_datetime_ratio":"1","sampling_interval":{"expression":"","condition":{"expression":"","value":""}}}}
+
 
 exports.default = SmartWidget;
