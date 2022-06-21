@@ -99,7 +99,7 @@ class IoTFlowsGauge extends _react.default.Component {
           dataLabels: {
             enabled: true,
             borderWidth: 0,
-            format: "<span style=\"font-size:2.75em; color: {point.color}; font-weight: bold\">{point.y}".concat(this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : '', "</span>")
+            format: "<span style=\"font-size:2em; color: {point.color}; font-weight: bold\">{point.y}".concat(this.props.widget_settings && this.props.widget_settings.options && this.props.widget_settings.options.unit && this.props.widget_settings.options.unit.value ? this.props.widget_settings.options.unit.value : '', "</span>")
           },
           linecap: 'round',
           stickyTracking: false,

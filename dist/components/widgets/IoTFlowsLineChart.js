@@ -71,6 +71,7 @@ class IoTFlowsLineChart extends _react.default.Component {
         enabled: false
       },
       series: [{
+        name: this.props.name,
         color: '#3399ff',
         data: this.state.data,
         animation: {

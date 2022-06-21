@@ -92,6 +92,7 @@ class IoTFlowsLineChartSinglePoint extends _react.default.Component {
         enabled: false
       },
       series: [{
+        name: this.props.name,
         type: "areaspline",
         // color: "#aedcfc",
         fillColor: {

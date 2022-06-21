@@ -20,7 +20,7 @@ export class IoTFlowsLineChart extends React.Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState){    
-    if(nextProps.data !== undefined && nextProps.data!==prevState.data){                                
+    if(nextProps.data !== undefined && nextProps.data!==prevState.data){         
         return { data: nextProps.data};
     }
     else return null;
@@ -70,6 +70,7 @@ export class IoTFlowsLineChart extends React.Component {
       },
       series: [
         {
+          name: this.props.name,
           color: '#3399ff',
           data: this.state.data,
           animation: {
